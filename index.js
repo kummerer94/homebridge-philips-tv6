@@ -1,12 +1,11 @@
-'use strict';
-const pkg = require('./package.json');
-const PhilipsTV = require('./PhilipsTV.js');
+"use strict";
+const pkg = require("./package.json");
+const PhilipsTV = require("./PhilipsTV.js");
 const pluginName = pkg.name;
-const accessoryName = 'PhilipsTV';
+const accessoryName = "PhilipsTV";
 let Service, Characteristic;
 
 class PhilipsTvAccessory {
-
     state = {
         power: true,
         ambilight: true,
@@ -19,7 +18,7 @@ class PhilipsTvAccessory {
     tvService = null;
 
     constructor(log, config) {
-        this.config = {...this.config, ...config};
+        this.config = { ...this.config, ...config };
         this.PhilipsTV = new PhilipsTV(config);
 
         this.registerAccessoryInformationService();
@@ -36,11 +35,11 @@ class PhilipsTvAccessory {
 
     identify(callback) {
         callback(); // success
-    };
+    }
 
     registerAccessoryInformationService = () => {
-        const {name, model_year} = this.config;
-        const {Name, Manufacturer, Model, FirmwareRevision} = Characteristic;
+        const { name, model_year } = this.config;
+        const { Name, Manufacturer, Model, FirmwareRevision } = Characteristic;
 
         const infoService = new Service.AccessoryInformation();
         infoService
@@ -52,19 +51,18 @@ class PhilipsTvAccessory {
     };
 
     registerTelevisionService = () => {
-
-        const {name, poll_status_interval} = this.config;
-        const {ConfiguredName, SleepDiscoveryMode, Active} = Characteristic;
+        const { name, poll_status_interval } = this.config;
+        const { ConfiguredName, SleepDiscoveryMode, Active } = Characteristic;
         const tvService = new Service.Television(name, "Television");
         const power = tvService.getCharacteristic(Active);
 
         tvService.setCharacteristic(ConfiguredName, name);
         tvService.setCharacteristic(SleepDiscoveryMode, SleepDiscoveryMode.ALWAYS_DISCOVERABLE);
 
-        power.on('get', this.PhilipsTV.getPowerState);
-        power.on('set', (value, callback) => {
+        power.on("get", this.PhilipsTV.getPowerState);
+        power.on("set", (value, callback) => {
             this.state.power = value;
-            this.PhilipsTV.setPowerState(value, callback)
+            this.PhilipsTV.setPowerState(value, callback);
         });
 
         if (poll_status_interval) {
@@ -72,9 +70,9 @@ class PhilipsTvAccessory {
                 this.PhilipsTV.getPowerState((err, value) => {
                     if (this.state.power !== value) {
                         this.state.power = value;
-                        power.updateValue(value)
+                        power.updateValue(value);
                     }
-                })
+                });
             }, poll_status_interval * 1000);
         }
 
@@ -83,18 +81,19 @@ class PhilipsTvAccessory {
     };
 
     registerInputService = () => {
-        const {inputs} = this.config;
-        const {ActiveIdentifier} = Characteristic;
+        const { inputs } = this.config;
+        const { ActiveIdentifier } = Characteristic;
 
         this.tvService.setCharacteristic(ActiveIdentifier, 1);
-        this.tvService.getCharacteristic(ActiveIdentifier)
-            .on('get', callback => {
+        this.tvService
+            .getCharacteristic(ActiveIdentifier)
+            .on("get", (callback) => {
                 this.PhilipsTV.getCurrentSource(inputs).then((source) => {
                     this.state.source = source;
-                    callback(null, this.state.source)
+                    callback(null, this.state.source);
                 });
             })
-            .on('set', (value, callback) => {
+            .on("set", (value, callback) => {
                 this.state.source = value;
                 const input = inputs[value];
                 this.PhilipsTV.setSource(input, callback);
@@ -108,16 +107,14 @@ class PhilipsTvAccessory {
     };
 
     registerAmbilightService = () => {
-        const {name, poll_status_interval} = this.config;
+        const { name, poll_status_interval } = this.config;
 
         this.ambilightService = new Service.Lightbulb(name + " Ambilight", "tvAmbilight");
         const ambilightPower = this.ambilightService.getCharacteristic(Characteristic.On);
-        ambilightPower
-            .on('get', this.PhilipsTV.getAmbilightState)
-            .on('set', (value, callback) => {
-                this.state.ambilight = value;
-                this.PhilipsTV.setAmbilightState(value, callback)
-            });
+        ambilightPower.on("get", this.PhilipsTV.getAmbilightState).on("set", (value, callback) => {
+            this.state.ambilight = value;
+            this.PhilipsTV.setAmbilightState(value, callback);
+        });
         this.services.push(this.ambilightService);
 
         if (poll_status_interval) {
@@ -125,50 +122,48 @@ class PhilipsTvAccessory {
                 this.PhilipsTV.getAmbilightState((err, value) => {
                     if (this.state.ambilight !== value) {
                         this.state.ambilight = value;
-                        ambilightPower.updateValue(value)
+                        ambilightPower.updateValue(value);
                     }
-                })
+                });
             }, poll_status_interval * 1000);
         }
     };
 
     registerVolumeService = () => {
-        const {name, poll_status_interval} = this.config;
+        const { name, poll_status_interval } = this.config;
 
         this.volumeService = new Service.Lightbulb(name + " Volume", "tvVolume");
         this.volumeService
             .getCharacteristic(Characteristic.On)
-            .on('get', (callback) => {
-                callback(null, 1)
+            .on("get", (callback) => {
+                callback(null, 1);
             })
-            .on('set', (value, callback) => {
-                this.PhilipsTV.setMuteState(value, callback)
+            .on("set", (value, callback) => {
+                this.PhilipsTV.setMuteState(value, callback);
             });
-        const volumeLevel = this.volumeService
-            .getCharacteristic(Characteristic.Brightness);
-        volumeLevel
-            .on('get', this.PhilipsTV.getVolumeState)
-            .on('set', (value, callback) => {
-                this.state.volume = value;
-                this.PhilipsTV.setVolumeState(value, callback)
-            });
+        const volumeLevel = this.volumeService.getCharacteristic(Characteristic.Brightness);
+        volumeLevel.on("get", this.PhilipsTV.getVolumeState).on("set", (value, callback) => {
+            this.state.volume = value;
+            this.PhilipsTV.setVolumeState(value, callback);
+        });
         if (poll_status_interval) {
             setInterval(() => {
                 this.PhilipsTV.getVolumeState((err, value) => {
                     if (this.state.volume !== value) {
                         this.state.volume = value;
-                        volumeLevel.updateValue(value)
+                        volumeLevel.updateValue(value);
                     }
-                })
+                });
             }, poll_status_interval * 1000);
         }
         this.services.push(this.volumeService);
     };
 
     createInputSource(id, name, number, type = Characteristic.InputSourceType.TV) {
-        const {Identifier, ConfiguredName, IsConfigured, InputSourceType} = Characteristic;
+        const { Identifier, ConfiguredName, IsConfigured, InputSourceType } = Characteristic;
         const input = new Service.InputSource(id, name);
-        input.setCharacteristic(Identifier, number)
+        input
+            .setCharacteristic(Identifier, number)
             .setCharacteristic(ConfiguredName, name)
             .setCharacteristic(IsConfigured, IsConfigured.CONFIGURED)
             .setCharacteristic(InputSourceType, type);
