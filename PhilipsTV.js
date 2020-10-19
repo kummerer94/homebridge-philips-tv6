@@ -13,7 +13,7 @@ class PhilipsTV {
         };
 
         const wolURL = config.wol_url;
-        const baseURL = `http://${config.ip_address}:1925/6`;
+        const baseURL = `http://${config.ip_address}:1925/6/`;
 
         console.log(`Registering ${baseURL} as URL for API.`);
 
@@ -21,7 +21,6 @@ class PhilipsTV {
             return new Promise((success, fail) => {
                 request(
                     {
-                        rejectUnauthorized: false,
                         timeout: 3000,
                         method: body ? "POST" : "GET",
                         body: typeof body === "object" ? JSON.stringify(body) : body,
