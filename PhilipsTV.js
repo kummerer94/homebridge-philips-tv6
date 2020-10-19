@@ -15,6 +15,8 @@ class PhilipsTV {
         const wolURL = config.wol_url;
         const baseURL = `http://${config.ip_address}:1925/6`;
 
+        console.log(`Registering ${baseURL} as URL for API.`);
+
         this.api = (path, body = null) => {
             return new Promise((success, fail) => {
                 request(
@@ -27,12 +29,14 @@ class PhilipsTV {
                     },
                     (error, response, body) => {
                         if (error) {
+                            console.log(`Error in API call for ${path}: ${error}.`);
                             fail(error);
                         } else {
                             if (body && body.indexOf("{") !== -1) {
                                 try {
                                     success(JSON.parse(body));
                                 } catch (e) {
+                                    console.log(`Unable to parse JSON: ${body}.`);
                                     fail(e);
                                 }
                             } else {
