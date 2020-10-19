@@ -1,4 +1,5 @@
 "use strict";
+
 const pkg = require("./package.json");
 const PhilipsTV = require("./PhilipsTV.js");
 const pluginName = pkg.name;

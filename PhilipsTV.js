@@ -1,3 +1,5 @@
+"use strict";
+
 const request = require("request");
 const wol = require("wake_on_lan");
 
