@@ -27,6 +27,8 @@ class PhilipsTV {
                         url: `${baseURL}${path}`,
                     },
                     (error, response, body) => {
+                        console.log(`Response for ${baseURL}${path}:`);
+                        console.log(typeof body === "object" ? JSON.stringify(body) : body);
                         if (error) {
                             console.log(`Error in API call for ${path}: ${error}.`);
                             fail(error);
