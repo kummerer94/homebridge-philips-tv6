@@ -1,19 +1,17 @@
-"use strict";
-
 const request = require("request");
 const wol = require("wake_on_lan");
 
 class PhilipsTV {
-    api = null;
-    channelList = [];
-    volume = {
-        min: 0,
-        max: 0,
-        current: 0,
-        muted: false,
-    };
-
     constructor(config) {
+        this.api = null;
+        this.channelList = [];
+        this.volume = {
+            min: 0,
+            max: 0,
+            current: 0,
+            muted: false,
+        };
+
         const wolURL = config.wol_url;
         const baseURL = `http://${config.ip_address}:1925/6`;
 

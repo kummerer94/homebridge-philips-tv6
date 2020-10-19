@@ -7,18 +7,18 @@ const accessoryName = "PhilipsTV";
 let Service, Characteristic;
 
 class PhilipsTvAccessory {
-    state = {
-        power: true,
-        ambilight: true,
-        source: 0,
-        volume: 0,
-    };
-
-    config = {};
-    services = [];
-    tvService = null;
-
     constructor(log, config) {
+        this.state = {
+            power: true,
+            ambilight: true,
+            source: 0,
+            volume: 0,
+        };
+
+        this.config = {};
+        this.services = [];
+        this.tvService = null;
+
         this.config = { ...this.config, ...config };
         this.PhilipsTV = new PhilipsTV(config);
 
